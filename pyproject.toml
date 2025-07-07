@@ -1,0 +1,11 @@
+[project]
+name = "aisec"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "fastmcp>=2.9.2",
+    "gitpython>=3.1.44",
+    "mcpo>=0.0.15",
+]
