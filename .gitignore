@@ -13,3 +13,4 @@ env/
 .DS_Store
 *.egg-info/
 sqlmap/
+config.py
