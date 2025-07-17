@@ -13,7 +13,8 @@ def zoomeye_login():
     if response.status_code != 200:
         print("登录失败，状态码:", response.status_code)
         return None
-    token=json.loads(response.text)
+    token=json.loads(response.text)['data']['token']
+    # 假设返回体为{"access_token": "xxxx"}
     return token
 
 @mcp.tool()
@@ -44,7 +45,7 @@ def query_assets(
     token = zoomeye_login()
     if not token:
         return {"error": "登录失败"}
-    headers = {"Authorization": f"JWT {token['access_token']}"}
+    headers = {"b-json-web-token": token}
     params = {
         "page": page,
         "pageSize": pageSize
@@ -57,6 +58,7 @@ def query_assets(
         if v and k not in ["site_ids", "page", "pageSize", "token", "headers", "params"]:
             params[k] = v
     url = f"https://{Zoomeye_IP}/api/v4/external/siteList"
+    print(params)
     response = requests.get(url, headers=headers, params=params, verify=False)
     if response.status_code != 200:
         return {"error": f"查询失败，状态码: {response.status_code}"}
