@@ -14,7 +14,6 @@ def zoomeye_login():
         print("登录失败，状态码:", response.status_code)
         return None
     token=json.loads(response.text)['data']['token']
-    # 假设返回体为{"access_token": "xxxx"}
     return token
 
 @mcp.tool()
@@ -60,6 +59,51 @@ def query_assets(
     url = f"https://{Zoomeye_IP}/api/v4/external/siteList"
     print(params)
     response = requests.get(url, headers=headers, params=params, verify=False)
+    print(response.text)
     if response.status_code != 200:
         return {"error": f"查询失败，状态码: {response.status_code}"}
     return response.json()
+
+@mcp.tool()
+def create_detection_task(
+    name: str,
+    target: list,
+    ports: list = None,
+    webFingerprintDetection: bool = True,
+    depthDetect: bool = True,
+    protocol: list = None,
+    connectionCount: int = 80000,
+    speedLimit: int = 2000,
+    interface: str = None,
+    priority: str = "middle"
+):
+    """
+    下发资产探测任务。
+    """
+    token = zoomeye_login()
+    if not token:
+        return {"error": "登录失败"}
+    headers = {"b-json-web-token": token, "Content-Type": "application/json"}
+    data = {
+        "name": name,
+        "target": target,
+        "webFingerprintDetection": webFingerprintDetection,
+        "depthDetect": depthDetect,
+        "connectionCount": connectionCount,
+        "speedLimit": speedLimit,
+        "priority": priority
+    }
+    if ports:
+        data["ports"] = ports
+    if protocol:
+        data["protocol"] = protocol
+    if interface:
+        data["interface"] = interface
+    url = f"https://{Zoomeye_IP}/api/v4/external/detection"
+    print(data)
+    response = requests.post(url, headers=headers, data=json.dumps(data), verify=False)
+    print(response.text)
+    if response.status_code != 200:
+        return {"error": f"任务下发失败，状态码: {response.status_code}"}
+    return response.json()
+
